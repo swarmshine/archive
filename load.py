@@ -335,38 +335,6 @@ def downloadFileNodes(fileNodes: [FileNode], savePath: str):
 
         saveFileDownloadedMarker(file.id, savePath)
 
-
-# def browseFiles(fileNodes: [FileNode], savePath: str):
-#     """
-#     Search for 'show file' buttons on the given page
-#     Iterate over all such buttons
-#     Parse information about file id and type
-#     for each file open viewer modal dialog
-#     from dialog extract file name
-#     for PDF files parse page count
-#     download all pages to directory
-#
-#     before downloading, check if file page already exist and skip such pages
-#     to avoid unnecessary file download
-#     """
-#
-#     for file in fileNodes:
-#         print(f"View file with id: {file.id}")
-#         driver.find_element_by_id(file.showLinkId).click()
-#
-#         fileName = driver.find_element_by_css_selector("div[role='dialog'][aria-describedby='storageFilesViewerPnl'] span.ui-dialog-title").text
-#         fileName = normalizeDirFileName(fileName)
-#
-#         if file.type == "Pdf":
-#             filePagesCount = driver.find_element_by_id("MainPlaceHolder__storageViewerControl_TotalImagePagesLbl").text
-#             pass
-#         else:
-#             downloadImage(file.id, 0, savePath, fileName)
-#
-#         print(f"close file with id: {file.id}")
-#         driver.find_element_by_css_selector("div[role='dialog'][aria-describedby='storageFilesViewerPnl'] button").click()
-
-
 def browse():
     breadCrubms = parseBreadCrubms()
     refs = parseRefs()
