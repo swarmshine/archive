@@ -40,10 +40,10 @@ def get(link: str) -> requests.Response:
             session = requests.Session()
             for cookie in driver.get_cookies():
                 session.cookies.set(cookie['name'], cookie['value'])
-            resp = session.get(link, timeout=60)
+            resp = session.get(link, timeout=120)
             return resp
         except Exception as e:
-            print(f"Failed to download")
+            print(f"Failed to download.")
 
 def downloadImage(id: str, page: int, dir) -> bool:
     print(f"Download file {id} page {page} into:\n{dir}")
