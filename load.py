@@ -131,7 +131,7 @@ def parseBreadCrubms() -> [str]:
 def waitBreadCrumbsUpdate(curBreadCrumbs: [str]) -> [str]:
     start = time.time()
     ensureEmptyForRealRetry = True
-    newBreadCrumbs :[str] = []
+    newBreadCrumbs: [str] = []
 
     while time.time() - start < WAIT_PAGE_TIME:
         try:
@@ -254,32 +254,64 @@ def buildDirectory(path: [str]) -> str:
     os.makedirs(dirPath, exist_ok=True)
     return dirPath
 
-def browseFiles():
 
-    breadCrubms = parseBreadCrubms()
-    savePath = buildDirectory(breadCrubms)
+class PageIterator:
+    def waitUpdate(self) -> None:
+        raise NotImplementedError
 
-    fileNodes: [FileNode] = waitFilesUpdate([])
+    def processPage(self) ->None:
+        raise NotImplementedError
 
-    totalPages = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__lTotalPages').text)
-    print(f"File list total pages: {totalPages}")
+    def iterateThrougPages(self):
+        """
+        Invoke processPage lambda on each of pages of current document
+        Lambda is responsible to return browser to the same view but not necessary with same page
+        """
+        breadCrubms = parseBreadCrubms()
 
-    for page in range(1, totalPages + 1):
-        curPage = int(
-            driver.find_element_by_id('MainPlaceHolder__pagingControl__tbCurrentPage').get_attribute('value'))
+        totalPages = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__lTotalPages').text)
+        print(f"Total pages: {totalPages} for {breadCrubms}")
 
-        if totalPages > 1 and curPage != page:
-            print(f"Set file list page {page} of {totalPages}")
-            pageElm = driver.find_element_by_id('MainPlaceHolder__pagingControl__tbCurrentPage')
-            pageElm.clear()
-            pageElm.send_keys(str(page))
-            pageElm.send_keys(Keys.ENTER)
-            fileNodes = waitFilesUpdate(fileNodes)
+        for page in range(1, totalPages + 1):
+            print(f"Process page: {page}")
 
-        downloadFileNodes(fileNodes, savePath)
+            curPage = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__tbCurrentPage').get_attribute('value'))
+            if totalPages > 1 and curPage != page:
+                print(f"Set page {page} of {totalPages}")
+                pageElm = driver.find_element_by_id('MainPlaceHolder__pagingControl__tbCurrentPage')
+                pageElm.clear()
+                pageElm.send_keys(str(page))
+                pageElm.send_keys(Keys.ENTER)
+
+                self.waitUpdate()
+
+            self.processPage()
 
 
-def browseFileLists(savePath: str):
+class FileNodesPageIterator(PageIterator):
+    savePath: str
+    breadCrubms: [str]
+
+    def __init__(self):
+        self.breadCrubms = parseBreadCrubms()
+        self.savePath = buildDirectory(breadCrubms)
+
+        self.fileNodes: [FileNode] = []
+
+    def waitUpdate(self) -> None:
+        self.fileNodes = waitFilesUpdate(self.fileNodes)
+
+    def processPage(self) -> None:
+        downloadFileNodes(self.fileNodes, self.savePath)
+
+
+
+
+
+
+
+
+def browseFileLists():
     """
     Search for `view file list` buttons on the given page
     Iterate over all such buttons
@@ -292,14 +324,13 @@ def browseFileLists(savePath: str):
         "a[id*=MainPlaceHolder_ArchiveGridView_StorageFilesViewerBtn_]")]
     print(f"Found {len(viewFileListElmIds)} file views")
     for fileElmId in viewFileListElmIds:
-
         breadCrumbs = parseBreadCrubms()
 
         print("Open file list")
         driver.find_element_by_id(fileElmId).click()
         newBreadCrumbs = waitBreadCrumbsUpdate(breadCrumbs)
 
-        browseFiles()
+        FileNodesPageIterator().iterateThrougPages()
 
         clickLastBreadCrumbElement()
 
@@ -338,20 +369,42 @@ def downloadFileNodes(fileNodes: [FileNode], savePath: str):
 
         saveFileDownloadedMarker(file.id, savePath)
 
+
+class NodesPageIterator(PageIterator):
+    breadCrubms: [str]
+    savePath: str
+    refs: [Ref]
+
+    def __init__(self):
+        self.breadCrubms = parseBreadCrubms()
+        self.savePath = buildDirectory(breadCrubms)
+
+        self.refs: [Ref] = parseRefs()
+
+    def waitUpdate(self) -> None:
+
+
+    def processPage(self) -> None:
+
+
+
+
+
+
+
 def browseNodes():
-    breadCrubms = parseBreadCrubms()
-    refs = parseRefs()
 
-    fileListSaveDir = buildDirectory(breadCrubms)
+    iter = NodesPageIterator()
 
-    if checkFileDownloadedMarker("dir", fileListSaveDir):
-        print(f"Dir already processed: {fileListSaveDir}")
+    if checkFileDownloadedMarker("dir", iter.savePath):
+        print(f"Dir already processed: {iter.savePath}")
         return
 
+    print(f"Iterate within node: {iter.breadCrubms}")
+    iter.iterateThrougPages()
+
+
     totalPages = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__lTotalPages').text)
-
-    print(f"Parse page: {breadCrubms}")
-
     for page in range(1, totalPages + 1):
         print(f"Process nodes page {page}")
 
@@ -371,7 +424,7 @@ def browseNodes():
             for ref in refs:
                 print(f"{ref.name}")
 
-            browseFileLists(fileListSaveDir)
+            browseFileLists()
 
             for ref in refs:
                 try:
@@ -407,7 +460,6 @@ def browseNodes():
     saveFileDownloadedMarker("dir", fileListSaveDir)
 
 
-
 driver.get("http://eais.tatar.ru")
 driver.find_element_by_id("LoginPnl_UserName").send_keys(login)
 driver.find_element_by_id("LoginPnl_Password").send_keys(password)
@@ -430,10 +482,9 @@ print(f"files: {files}")
 
 if len(files) > 0:
     print("Browse file list")
-    browseFiles()
+    FileNodesPageIterator().iterateThrougPages()
 else:
     print("Browse node list")
     browseNodes()
-
 
 driver.close()
