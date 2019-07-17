@@ -385,8 +385,8 @@ class NodesPageIterator(PageIterator):
 
             clickLastBreadCrumbElement()
 
-            self.breadCrumbs = waitBreadCrumbsUpdate(fileListBreadCrumbs)
-            self.refs = waitRefsUpdate([])
+            waitBreadCrumbsUpdate(fileListBreadCrumbs)
+            waitRefsUpdate([])
             self.navigateToCurrentPage()
 
         for ref in self.refs:
@@ -408,6 +408,7 @@ class NodesPageIterator(PageIterator):
 
             waitBreadCrumbsUpdate(prevCrumbs)
             waitRefsUpdate(prevRefs)
+            self.navigateToCurrentPage()
 
 
 def browse_nodes():
