@@ -88,12 +88,9 @@ def downloadImage(id: str, page: int, dir) -> bool:
 
 
 class Ref:
-    name: str
-    id: str
-
     def __init__(self, name: str, id: str):
-        self.name = name
-        self.id = id
+        self.name: str = name
+        self.id: str = id
 
     def __repr__(self):
         return f"{{{self.name}-{self.id}}}"
@@ -106,12 +103,10 @@ class Ref:
 
 
 class FileNode:
-    id: str
-    type: str
 
     def __init__(self, id: str, type: str):
-        self.id = id
-        self.type = type
+        self.id: str = id
+        self.type: str = type
 
     def __repr__(self):
         return f"{{{self.id}-{self.type}}}"
@@ -255,18 +250,13 @@ def buildDirectory(path: [str]) -> str:
 
 
 class PageIterator:
-    totalPages: int
-    breadCrumbs: [str]
-    savePath: str
-    page: int
-
     def __init__(self) -> None:
         super().__init__()
-        self.breadCrumbs = parseBreadCrumbs()
-        self.savePath = buildDirectory(self.breadCrumbs)
+        self.breadCrumbs: [str] = parseBreadCrumbs()
+        self.savePath: str = buildDirectory(self.breadCrumbs)
 
-        self.totalPages = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__lTotalPages').text)
-        self.page = 1
+        self.totalPages: int = int(driver.find_element_by_id('MainPlaceHolder__pagingControl__lTotalPages').text)
+        self.page: int = 1
 
     def waitUpdate(self) -> None:
         raise NotImplementedError
@@ -302,8 +292,6 @@ class PageIterator:
 
 
 class FileNodesPageIterator(PageIterator):
-    fileNodes: [FileNode]
-
     def __init__(self):
         super().__init__()
         self.fileNodes: [FileNode] = waitFilesUpdate([])
@@ -348,8 +336,6 @@ def download_file_nodes(fileNodes: [FileNode], savePath: str):
 
 
 class NodesPageIterator(PageIterator):
-    refs: [Ref]
-
     def __init__(self):
         super().__init__()
         self.refs: [Ref] = parseRefs()
