@@ -36,13 +36,15 @@ def fileLink(id: str, page: int) -> str:
 
 
 def get(link: str) -> requests.Response:
-    session = requests.Session()
-    for cookie in driver.get_cookies():
-        session.cookies.set(cookie['name'], cookie['value'])
-
-    resp = session.get(link)
-    return resp
-
+    for i in range(0, 5):
+        try:
+            session = requests.Session()
+            for cookie in driver.get_cookies():
+                session.cookies.set(cookie['name'], cookie['value'])
+            resp = session.get(link, timeout=120)
+            return resp
+        except Exception as e:
+            print(f"Failed to download.")
 
 def downloadImage(id: str, page: int, dir) -> bool:
     print(f"Download file {id} page {page} into:\n{dir}")
