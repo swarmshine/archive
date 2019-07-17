@@ -44,7 +44,7 @@ def get(link: str) -> requests.Response:
             resp = session.get(link, timeout=120)
             return resp
         except Exception as e:
-            print(f"Failed to download.")
+            print(f"Failed to download. Attempt {i}")
 
 def downloadImage(id: str, page: int, dir) -> bool:
     print(f"Download file {id} page {page} into:\n{dir}")
