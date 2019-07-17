@@ -1,13 +1,12 @@
-import requests
-import re
 import os
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver import remote
+import re
 import time
-from selenium.webdriver.common.keys import Keys
-
 from argparse import ArgumentParser
+
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from webdriver_manager.chrome import ChromeDriverManager
 
 host = ""
 WAIT_PAGE_TIME = 10
@@ -27,6 +26,8 @@ def normalizeDirFileName(name: str) -> str:
     name = re.sub('[^0-9a-zA-Zа-яА-Я]+', '_', name)
     name = re.sub('[_]+', ' ', name)
     name = name.strip()
+    if len(name) > 254:
+        name = name[0:254]
     return name
 
 
