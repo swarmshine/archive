@@ -306,7 +306,7 @@ class FileNodesPageIterator(PageIterator):
 
     def __init__(self):
         super().__init__()
-        self.fileNodes: [FileNode] = []
+        self.fileNodes: [FileNode] = waitFilesUpdate([])
 
     def waitUpdate(self) -> None:
         self.fileNodes = waitFilesUpdate(self.fileNodes)
