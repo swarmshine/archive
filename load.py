@@ -355,7 +355,7 @@ class NodesPageIterator(PageIterator):
         self.refs: [Ref] = parseRefs()
 
     def waitUpdate(self) -> None:
-        self.refs = waitRefsUpdate(refs)
+        self.refs = waitRefsUpdate(self.refs)
 
     def processPage(self) -> None:
         if len(self.refs) == 0:
