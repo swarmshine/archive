@@ -14,12 +14,21 @@ WAIT_PAGE_TIME = 10
 parser = ArgumentParser()
 parser.add_argument("-l", "--login", type=str, required=True)
 parser.add_argument("-p", "--password", type=str, required=True)
+parser.add_argument("-x", "--proxy", type=str, required=False)
 
 args = parser.parse_args()
 login = args.login
 password = args.password
 
 driver = webdriver.Chrome(ChromeDriverManager().install())
+
+# socks5://user:pass@host:port
+proxies = None
+if args.proxy is not None:
+    proxies = dict(
+        http='socks5://' +  args.proxy + '&',
+        https='socks5://' + args.proxy +'&'
+    )
 
 
 def normalizeDirFileName(name: str) -> str:
@@ -41,6 +50,8 @@ def get(link: str) -> requests.Response:
             session = requests.Session()
             for cookie in driver.get_cookies():
                 session.cookies.set(cookie['name'], cookie['value'])
+            if proxies is not None:
+                session.proxies = proxies
             resp = session.get(link, timeout=120)
             return resp
         except Exception as e:
