@@ -16,11 +16,13 @@ parser.add_argument("-l", "--login", type=str, required=True)
 parser.add_argument("-p", "--password", type=str, required=True)
 parser.add_argument("-x", "--proxy", type=str, required=False)
 
+#for tor browser use: -x 185.130.105.66:11084
+
 args = parser.parse_args()
 login = args.login
 password = args.password
 
-driver = webdriver.Chrome(ChromeDriverManager().install())
+options = webdriver.ChromeOptions()
 
 # socks5://user:pass@host:port
 proxies = None
@@ -29,6 +31,9 @@ if args.proxy is not None:
         http='socks5://' +  args.proxy + '&',
         https='socks5://' + args.proxy +'&'
     )
+    options.add_argument("--proxy-server=socks5://" + args.proxy)
+
+driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=options)
 
 
 def normalizeDirFileName(name: str) -> str:
@@ -422,6 +427,7 @@ def browse_nodes():
 
 
 driver.get("http://eais.tatar.ru")
+
 driver.find_element_by_id("LoginPnl_UserName").send_keys(login)
 driver.find_element_by_id("LoginPnl_Password").send_keys(password)
 

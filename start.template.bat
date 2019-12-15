@@ -1,1 +1,0 @@
-python load.py -l login -p password
