@@ -19,6 +19,8 @@ python load.py -l login -p password
 python load.py -l login -p password -x proxy_host:proxy_port
 ```
 Если вы используете Tor запустите Tor Browser.   
+Скачать и установить Tor Browser: https://www.torproject.org/download/
+
 По умолчанию Tor Browser создает socks proxy  по адресу 127.0.0.1:9150
 ```
 python load.py -l login -p password -x 127.0.0.1:9150
