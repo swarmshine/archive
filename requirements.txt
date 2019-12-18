@@ -1,3 +1,4 @@
 requests
+pysocks
 selenium
 webdriver-manager

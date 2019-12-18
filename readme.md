@@ -1,3 +1,7 @@
+# Setup
+```
+pip install -r requirements.txt
+```
 # Without proxy
 Создайте или отредактируйте запускаемый файл start.bat.
 Вместо login и password укажите действующие логин и пароль
